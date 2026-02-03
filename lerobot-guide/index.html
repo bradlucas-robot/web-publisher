@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeRobot 仿真与强化学习训练完全指南</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+            line-height: 1.8;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #38bdf8;
+            text-decoration: none;
+            margin-bottom: 30px;
+            font-size: 0.95em;
+            transition: all 0.2s;
+        }
+        .back-link:hover {
+            color: #0ea5e9;
+            transform: translateX(-4px);
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .subtitle {
+            font-size: 1.1em;
+            color: #94a3b8;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #1e293b;
+        }
+        h2 {
+            font-size: 1.6em;
+            margin: 50px 0 20px;
+            color: #38bdf8;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #38bdf8;
+        }
+        h3 {
+            font-size: 1.3em;
+            margin: 30px 0 15px;
+            color: #fbbf24;
+        }
+        p {
+            margin-bottom: 16px;
+            color: #cbd5e1;
+        }
+        ul, ol {
+            margin: 16px 0 24px 24px;
+        }
+        li {
+            margin-bottom: 12px;
+            color: #cbd5e1;
+        }
+        .highlight {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.1) 0%, rgba(129, 140, 248, 0.1) 100%);
+            border-left: 4px solid #38bdf8;
+            padding: 20px 24px;
+            margin: 24px 0;
+            border-radius: 0 12px 12px 0;
+        }
+        .info-box {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%);
+            border-left24;
+            padding: 4px solid #fbbf: 20px 24px;
+            margin: 24px 0;
+            border-radius: 0 12px 12px 0;
+        }
+        .warning-box {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%);
+            border-left: 4px solid #ef4444;
+            padding: 20px 24px;
+            margin: 24px 0;
+            border-radius: 0 12px 12px 0;
+        }
+        code {
+            background: #1e293b;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.9em;
+            color: #38bdf8;
+        }
+        pre {
+            background: #1e293b;
+            padding: 24px;
+            border-radius: 12px;
+            overflow-x: auto;
+            margin: 24px 0;
+            border: 1px solid #334155;
+        }
+        pre code {
+            background: none;
+            padding: 0;
+            color: #e2e8f0;
+            font-size: 0.85em;
+            line-height: 1.6;
+        }
+        .table-wrapper {
+            overflow-x: auto;
+            margin: 24px 0;
+            border-radius: 12px;
+            border: 1px solid #334155;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+        th, td {
+            padding: 14px 18px;
+            text-align: left;
+            border-bottom: 1px solid #334155;
+        }
+        th {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: #38bdf8;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8em;
+            letter-spacing: 0.05em;
+        }
+        td {
+            color: #cbd5e1;
+        }
+        tr:hover {
+            background: rgba(56, 189, 248, 0.05);
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        .pros-cons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin: 24px 0;
+        }
+        .pros, .cons {
+            padding: 24px;
+            border-radius: 12px;
+        }
+        .pros {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(22, 163, 74, 0.1) 100%);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+        .cons {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        .pros h4, .cons h4 {
+            margin-bottom: 16px;
+            font-size: 1.1em;
+        }
+        .pros h4 {
+            color: #22c55e;
+        }
+        .cons h4 {
+            color: #ef4444;
+        }
+        .pros ul, .cons ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .step {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 20px 0;
+            border-left: 4px solid #38bdf8;
+            transition: transform 0.2s;
+        }
+        .step:hover {
+            transform: translateX(4px);
+        }
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-weight: bold;
+            margin-right: 14px;
+            font-size: 0.95em;
+        }
+        .step h4 {
+            display: inline;
+            color: #38bdf8;
+            font-size: 1.1em;
+        }
+        .tag {
+            display: inline-block;
+            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+            color: white;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            margin-right: 8px;
+            margin-bottom: 6px;
+        }
+        .tag.green {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        }
+        .tag.orange {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+        .tag.red {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        .tag.purple {
+            background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+        }
+        footer {
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid #1e293b;
+            text-align: center;
+            color: #64748b;
+            font-size: 0.9em;
+        }
+        footer a {
+            color: #38bdf8;
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+            margin: 30px 0;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, #38bdf8 0%, #818cf8 100%);
+        }
+        .timeline-item {
+            position: relative;
+            margin: 24px 0;
+            padding-left: 24px;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -26px;
+            top: 8px;
+            width: 14px;
+            height: 14px;
+            background: #38bdf8;
+            border-radius: 50%;
+            border: 3px solid #0f172a;
+        }
+        .timeline-item strong {
+            color: #38bdf8;
+            font-size: 1.1em;
+        }
+        .architecture {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            justify-content: center;
+            margin: 30px 0;
+        }
+        .arch-box {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            padding: 20px 30px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #334155;
+            min-width: 140px;
+        }
+        .arch-box .icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        .arch-arrow {
+            display: flex;
+            align-items: center;
+            color: #38bdf8;
+            font-size: 1.5em;
+        }
+        @media (max-width: 768px) {
+            .pros-cons {
+                grid-template-columns: 1fr;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+            .container {
+                padding: 0 12px;
+            }
+            .step:hover {
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../" class="back-link">← 返回首页</a>
+        
+        <h1>🤖 LeRobot 仿真与强化学习训练完全指南</h1>
+        <p class="subtitle">系统调研 × 框架对比 × 小白上手教程</p>
+        
+        <div class="highlight">
+            <strong>📚 LeRobot</strong> 是 Hugging Face 开源的机器人学习框架，提供从数据收集、训练到真实机器人部署的完整工作流。支持多种仿真环境和强化学习算法。
+        </div>
+        
+        <h2>📖 1. LeRobot 概述</h2>
+        
+        <h3>什么是 LeRobot？</h3>
+        <p>LeRobot 是由 Hugging Face 于 2024 年发布的开源机器人学习框架，专注于 democratizing 物理 AI 技术，让研究者和开发者能够更轻松地训练和部署机器人策略。</p>
+        
+        <h3>核心特性</h3>
+        <ul>
+            <li><span class="tag green">🤖 多仿真支持</span> MuJoCo、PyBullet、Brax 等</li>
+            <li><span class="tag purple">🧠 多算法支持</span> PPO、SAC、TD-MPC、ACT、Diffusion 等</li>
+            <li><span class="tag">📦 标准化数据集</span> LeRobotDataset 格式（Parquet + MP4）</li>
+            <li><span class="tag green">🤝 Hugging Face 生态</span> Hub 集成、Spaces 部署</li>
+            <li><span class="tag orange">🏠 真实部署</span> 支持多种硬件平台</li>
+            <li><span class="tag red">🎮 行为克隆</span> 从演示中学习策略</li>
+        </ul>
+        
+        <h3>系统架构</h3>
+        <div class="architecture">
+            <div class="arch-box">
+                <div class="icon">📹</div>
+                <div>数据收集</div>
+            </div>
+            <div class="arch-arrow">→</div>
+            <div class="arch-box">
+                <div class="icon">🧠</div>
+                <div>策略训练</div>
+            </div>
+            <div class="arch-arrow">→</div>
+            <div class="arch-box">
+                <div class="icon">🧪</div>
+                <div>仿真验证</div>
+            </div>
+            <div class="arch-arrow">→</div>
+            <div class="arch-box">
+                <div class="icon">🤖</div>
+                <div>真实部署</div>
+            </div>
+        </div>
+        
+        <h3>支持的策略类型</h3>
+        <div class="table-wrapper">
+            <table>
+                <tr>
+                    <th>策略名称</th>
+                    <th>类型</th>
+                    <th>描述</th>
+                    <th>适用场景</th>
+                </tr>
+                <tr>
+                    <td><strong>ACT</strong></td>
+                    <td>行为克隆</td>
+                    <td>Action Chunking Transformer，动作分块 + Transformer</td>
+                    <td>演示学习、低延迟控制</td>
+                </tr>
+                <tr>
+                    <td><strong>Diffusion</strong></td>
+                    <td>行为克隆</td>
+                    <td>扩散模型生成动作序列</td>
+                    <td>复杂、长 horizon 任务</td>
+                </tr>
+                <tr>
+                    <td><strong>TD-MPC</strong></td>
+                    <td>模型预测控制</td>
+                    <td>Temporal Difference Model Predictive Control</td>
+                    <td>连续控制、稀疏奖励</td>
+                </tr>
+                <tr>
+                    <td><strong>HIL-SERL</strong></td>
+                    <td>强化学习</td>
+                    <td>结合模仿学习与强化学习</td>
+                    <td>从人类演示中 RL 微调</td>
+                </tr>
+                <tr>
+                    <td><strong>PPO</strong></td>
+                    <td>强化学习</td>
+                    <td>Proximal Policy Optimization</td>
+                    <td>标准 RL、稳定性要求高</td>
+                </tr>
+                <tr>
+                    <td><strong>SAC</strong></td>
+                    <td>强化学习</td>
+                    <td>Soft Actor-Critic</td>
+                    <td>连续动作、高样本效率</td>
+                </tr>
+            </table>
+        </div>
+        
+        <h2>🔧 2. 仿真框架对比</h2>
+        
+        <p>LeRobot 主要使用 MuJoCo 作为仿真引擎，同时支持多种其他框架。以下是详细对比：</p>
+        
+        <h3>2.1 主流仿真框架对比表</h3>
+        <div class="table-wrapper">
+            <table>
+                <tr>
+                    <th>框架</th>
+                    <th>类型</th>
+                    <th>性能</th>
+                    <th>学习曲线</th>
+                    <th>真实感</th>
+                    <th>社区</th>
+                    <th>成本</th>
+                </tr>
+                <tr>
+                    <td><strong>MuJoCo</strong></td>
+                    <td>物理引擎</td>
+                    <td>⭐⭐⭐⭐⭐</td>
+                    <td>⭐⭐⭐</td>
+                    <td>⭐⭐⭐⭐</td>
+                    <td>⭐⭐⭐⭐</td>
+                    <td>免费/学术</td>
+                </tr>
+                <tr>
+                    <td><strong>PyBullet</strong></td>
+                    <td>仿真环境</td>
+                    <td>⭐⭐⭐</td>
+                    <td>⭐⭐⭐⭐⭐</td>
+                    <td>⭐⭐⭐</td>
+                    <td>⭐⭐⭐⭐</td>
+                    <td>完全免费</td>
+                </tr>
+                <tr>
+                    <td><strong>Isaac Sim</strong></td>
+                    <td>高保真仿真</td>
+                    <td>⭐⭐⭐⭐⭐</td>
+                    <td>⭐⭐</td>
+                    <td>⭐⭐⭐⭐⭐</td>
+                    <td>⭐⭐⭐</td>
+                    <td>商业付费</td>
+                </tr>
+                <tr>
+                    <td><strong>Brax</strong></td>
+                    <td>快速仿真</td>
+                    <td>⭐⭐⭐⭐⭐</td>
+                    <td>⭐⭐⭐⭐</td>
+                    <td>⭐⭐⭐</td>
+                    <td>⭐⭐</td>
+                    <td>完全免费</td>
+                </tr>
+                <tr>
+                    <td><strong>DM Control</strong></td>
+                    <td>仿真环境</td>
+                    <td>⭐⭐⭐⭐</td>
+                    <td>⭐⭐⭐</td>
+                    <td>⭐⭐⭐⭐</td>
+                    <td>⭐⭐⭐</td>
+                    <td>完全免费</td>
+                </tr>
+                <tr>
+                    <td><strong>Gymnasium</strong></td>
+                    <td>环境接口</td>
+                    <td>⭐⭐⭐</td>
+                    <td>⭐⭐⭐⭐⭐</td>
+                    <td>N/A</td>
+                    <td>⭐⭐⭐⭐⭐</td>
+                    <td>完全免费</td>
+                </tr>
+            </table>
+        </div>
+        
+        <h3>2.2 MuJoCo 详解</h3>
+        <p>LeRobot 默认使用的仿真引擎，广泛用于学术研究和工业应用。</p>
+        <div class="pros-cons">
+            <div class="pros">
+                <h4>✅ 优点</h4>
+                <ul>
+                    <li>高性能物理模拟，速度快</li>
+                    <li>真实世界迁移效果好</li>
+                    <li>学术界广泛使用，验证充分</li>
+                    <li>Python API 简洁易用</li>
+                    <li>支持 GPU 加速渲染</li>
+                    <li>丰富的预定义机器人模型</li>
+                </ul>
+            </div>
+            <div class="cons">
+                <h4>❌ 缺点</h4>
+                <ul>
+                    <li>商业使用需要许可证</li>
+                    <li>渲染质量不如 Isaac Sim</li>
+                    <li>Windows 上配置稍复杂</li>
+                    <li>文档相对基础</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h3>2.3 PyBullet 详解</h3>
+        <p>基于 Bullet 物理引擎的 Python 封装，适合快速原型开发。</p>
+        <div class="pros-cons">
+            <div class="pros">
+                <h4>✅ 优点</h4>
+                <ul>
+                    <li>完全开源免费</li>
+                    <li>安装简单，一键部署</li>
+                    <li>内置实时可视化</li>
+                    <li>丰富的预训练模型</li>
+                    <li>学习曲线平缓</li>
+                </ul>
+            </div>
+            <div class="cons">
+                <h4>❌ 缺点</h4>
+                <ul>
+                    <li>物理精度不如 MuJoCo</li>
+                    <li>仿真速度较慢</li>
+                    <li>大规模并行效率低</li>
+                    <li>代码风格略显过时</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h3>2.4 Isaac Sim 详解</h3>
+        <p>NVIDIA 开发的高保真机器人仿真平台。</p>
+        <div class="pros-cons">
+            <div class="pros">
+                <h4>✅ 优点</h4>
+                <ul>
+                    <li>NVIDIA GPU 极致加速</li>
+                    <li>照片级渲染质量</li>
+                    <li>丰富的传感器仿真</li>
+                    <li>工业级可靠性</li>
+                    <li>支持 ROS/ROS2 集成</li>
+                </ul>
+            </div>
+            <div class="cons">
+                <h4>❌ 缺点</h4>
+                <ul>
+                    <li>需要 NVIDIA GPU</li>
+                    <li>学习曲线陡峭</li>
+                    <li>安装配置复杂</li>
+                    <li>商业用途收费</li>
+                    <li>资源占用大</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h3>2.5 Brax 详解</h3>
+        <p>Google JAX 基础的大规模并行仿真库。</p>
+        <div class="pros-cons">
+            <div class="pros">
+                <h4>✅ 优点</h4>
+                <ul>
+                    <li>JAX 加速，极致性能</li>
+                    <li>支持大规模并行训练</li>
+                    <li>完全开源免费</li>
+                    <li>云端部署友好</li>
+                </ul>
+            </div>
+            <div class="cons">
+                <h4>❌ 缺点</h4>
+                <ul>
+                    <li>需要学习 JAX</li>
+                    <li>生态系统较小</li>
+                    <li>真实感一般</li>
+                    <li>调试困难</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h3>2.6 LeRobot 仿真环境</h3>
+        <div class="table-wrapper">
+            <table>
+                <tr>
+                    <th>环境名称</th>
+                    <th>任务类型</th>
+                    <th>动作空间</th>
+                    <th>特点</th>
+                </tr>
+                <tr>
+                    <td><strong>gym-aloha</strong></td>
+                    <td>双手操作</td>
+                    <td>14D</td>
+                    <td>高精度遥控臂，学习复杂操作</td>
+                </tr>
+                <tr>
+                    <td><strong>gym-pusht</strong></td>
+                    <td>推动任务</td>
+                    <td>2D</td>
+                    <td>基础平面推动，简单入门</td>
+                </tr>
+                <tr>
+                    <td><strong>gym-xarm</strong></td>
+                    <td>机械臂控制</td>
+                    <td>4-7D</td>
+                    <td>工业机械臂仿真</td>
+                </tr>
+                <tr>
+                    <td><strong>gym-kuka</strong></td>
+                    <td>工业机器人</td>
+                    <td>7D</td>
+                    <td>KUKA 工业臂</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="info-box">
+            <strong>🎯 选择建议：</strong>
+            <ul style="margin-top: 10px;">
+                <li><strong>初学者</strong> → gym-pusht（简单、上手快）</li>
+                <li><strong>双手操作</strong> → gym-aloha（LeRobot 官方示例）</li>
+                <li><strong>工业应用</strong> → gym-xarm/gym-kuka</li>
+                <li><strong>大规模并行</strong> → Brax（JAX 加速）</li>
+            </ul>
+        </div>
+        
+        <h2>🧠 3. 强化学习框架对比</h2>
+        
+        <h3>3.1 框架综合对比</h3>
+        <div class="table-wrapper">
+            <table>
+                <tr>
+                    <th>特性</th>
+                    <th>LeRobot</th>
+                    <th>Stable-Baselines3</th>
+                    <th>RLlib</th>
+                    <th>CleanRL</th>
+                </tr>
+                <tr>
+                    <td><strong>专注领域</strong></td>
+                    <td>机器人学习</td>
+                    <td>通用 RL</td>
+                    <td>大规模分布式</td>
+                    <td>研究型</td>
+                </tr>
+                <tr>
+                    <td><strong>算法数量</strong></td>
+                    <td>6+</td>
+                    <td>15+</td>
+                    <td>30+</td>
+                    <td>10+</td>
+                </tr>
+                <tr>
+                    <td><strong>易用性</strong></td>
+                    <td>⭐⭐⭐⭐</td>
+                    <td>⭐⭐⭐⭐⭐</td>
+                    <td>⭐⭐⭐</td>
+                    <td>⭐⭐⭐</td>
+                </tr>
+                <tr>
+                    <td><strong>仿真集成</strong></td>
+                    <td>⭐⭐⭐⭐⭐</td>
+                    <td>⭐⭐⭐⭐</td>
+                    <td>⭐⭐⭐</td>
+                    <td>⭐⭐⭐⭐</td>
+                </tr>
+                <tr>
+                    <td><strong>真实部署</strong></td>
+                    <td>⭐⭐⭐⭐⭐</td>
+                    <td>⭐⭐</td>
+                    <td>⭐⭐</td>
+                    <td>⭐⭐</td>
+                </tr>
+                <tr>
+                    <td><strong>分布式训练</strong></td>
+                    <td>⭐⭐⭐</td>
+                    <td>⭐⭐</td>
+                    <td>⭐⭐⭐⭐⭐</td>
+                    <td>⭐⭐⭐⭐</td>
+                </tr>
+                <tr>
+                    <td><strong>文档质量</strong></td>
+                    <td>⭐⭐⭐⭐</td>
+                    <td>⭐⭐⭐⭐⭐</td>
+                    <td>⭐⭐⭐⭐</td>
+                    <td>⭐⭐⭐</td>
+                </tr>
+                <tr>
+                    <td><strong>HF 生态</strong></td>
+                    <td>⭐⭐⭐⭐⭐</td>
+                    <td>⭐⭐⭐⭐</td>
+                    <td>⭐⭐</td>
+                    <td>⭐⭐</td>
+                </tr>
+            </table>
+        </div>
+        
+        <h3>3.2 RL 算法对比</h3>
+        <div class="table-wrapper">
+            <table>
+                <tr>
+                    <th>算法</th>
+                    <th>类型</th>
+                    <th>样本效率</th>
+                    <th>稳定性</th>
+                    <th>计算需求</th>
+                    <th>推荐场景</th>
+                </tr>
+                <tr>
+                    <td><strong>PPO</strong></td>
+                    <td>On-policy</td>
+                    <td>⭐⭐⭐</td>
+                    <td>⭐⭐⭐⭐⭐</td>
+                    <td>⭐⭐⭐</td>
+                    <td>通用首选、稳定可靠</td>
+                </tr>
+                <tr>
+                    <td><strong>SAC</strong></td>
+                    <td>Off-policy</td>
+                    <td>⭐⭐⭐⭐⭐</td>
+                    <td>⭐⭐⭐⭐</td>
+                    <td>⭐⭐⭐⭐</td>
+                    <td>连续控制、高效率</td>
+                </tr>
+                <tr>
+                    <td><strong>TD-MPC</strong></td>
+                    <td>Model-based</td>
+                    <td>⭐⭐⭐⭐⭐</td>
+                    <td>⭐⭐⭐⭐</td>
+                    <td>⭐⭐⭐⭐</td>
+                    <td>稀疏奖励、长 horizon</td>
+                </tr>
+                <tr>
+                    <td><strong>ACT</strong></td>
+                    <td>行为克隆</td>
+                    <td>N/A</td>
+                    <td>⭐⭐⭐⭐</td>
+                    <td>⭐⭐⭐</td>
+                    <td>有演示数据、低延迟</td>
+                </tr>
+                <tr>
+                    <td><strong>Diffusion</strong></td>
+                    <td>行为克隆</td>
+                    <td>N/A</td>
+                    <td>⭐⭐⭐⭐</td>
+                    <td>⭐⭐⭐⭐⭐</td>
+                    <td>复杂序列、长 horizon</td>
+                </tr>
+                <tr>
+                    <td><strong>HIL-SERL</strong></td>
+                    <td>混合学习</td>
+                    <td>⭐⭐⭐⭐⭐</td>
+                    <td>⭐⭐⭐⭐</td>
+                    <td>⭐⭐⭐⭐</td>
+                    <td>演示 + RL 微调</td>
+                </tr>
+            </table>
+        </div>
+        
+        <h3>3.3 为什么选择 LeRobot？</h3>
+        <div class="highlight">
+            <strong>LeRobot 的独特优势：</strong>
+            <ol style="margin-top: 12px;">
+                <li><strong>端到端工作流</strong> - 数据收集 → 训练 → 部署，无缝衔接</li>
+                <li><strong>真实机器人支持</strong> - 从仿真到真实硬件的完整方案</li>
+                <li><strong>预训练策略</strong> - 开箱即用的行为策略</li>
+                <li><strong>Hugging Face 生态</strong> - 模型共享、版本管理、Spaces 部署</li>
+                <li><strong>活跃社区</strong> - Hugging Face 官方支持</li>
+            </ol>
+        </div>
+        
+        <h2>📚 4. 小白上手教程</h2>
+        
+        <h3>4.1 环境准备</h3>
+        
+        <div class="step">
+            <span class="step-number">1</span>
+            <h4>安装 Miniconda</h4>
+        </div>
+        <pre><code># Linux/macOS
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+bash Miniconda3-latest-Linux-x86_64.sh
+
+# macOS (Homebrew)
+brew install miniconda
+
+# 初始化
+conda init
+# 重启终端后
+conda config --set auto_activate_base false</code></pre>
+        
+        <div class="step">
+            <span class="step-number">2</span>
+            <h4>创建虚拟环境</h4>
+        </div>
+        <pre><code>conda create -n lerobot python=3.10
+conda activate lerobot</code></pre>
+        
+        <div class="step">
+            <span class="step-number">3</span>
+            <h4>安装 PyTorch</h4>
+        </div>
+        <pre><code># CUDA 12.1 (推荐)
+pip install torch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0 \
+    --index-url https://download.pytorch.org/whl/cu121
+
+# CUDA 11.8
+pip install torch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0 \
+    --index-url https://download.pytorch.org/whl/cu118
+
+# CPU only (无 GPU)
+pip install torch torchvision torchaudio</code></pre>
+        
+        <div class="step">
+            <span class="step-number">4</span>
+            <h4>安装 LeRobot</h4>
+        </div>
+        <pre><code># 从源码安装 (推荐)
+git clone https://github.com/huggingface/lerobot.git
+cd lerobot
+pip install -e .
+
+# 或使用 pip
+pip install lerobot</code></pre>
+        
+        <div class="step">
+            <span class="step-number">5</span>
+            <h4>安装仿真依赖</h4>
+        </div>
+        <pre><code># MuJoCo
+pip install mujoco
+
+# 验证安装
+python -c "import mujoco; print('MuJoCo OK')"
+
+# 可选：安装其他仿真
+pip install pybullet    # PyBullet
+pip install brax        # Brax (需要 JAX)
+pip install gymnasium   # RL 环境接口</code></pre>
+        
+        <h3>4.2 验证安装</h3>
+        <pre><code># 检查 LeRobot
+python -c "import lerobot; print('LeRobot:', lerobot.__version__)"
+
+# 检查 PyTorch
+python -c "import torch; print('PyTorch:', torch.__version__); print('CUDA:', torch.cuda.is_available())"
+
+# 检查 MuJoCo
+python -c "import mujoco; print('MuJoCo OK')"</code></pre>
+        
+        <h3>4.3 第一个示例：训练 PPO 策略</h3>
+        
+        <div class="step">
+            <span class="step-number">1</span>
+            <h4>创建训练脚本</h4>
+        </div>
+        <pre><code>"""
+PPO 训练示例 - 训练 HalfCheetah 行走
+保存为: train_ppo.py
+"""
+
+import gymnasium as gym
+from lerobot.policies import PPOPolicy
+
+# 创建环境
+env = gym.make("HalfCheetah-v4")
+
+# 创建 PPO 策略
+policy = PPOPolicy(
+    observation_space=env.observation_space,
+    action_space=env.action_space,
+    learning_rate=3e-4,
+    n_steps=2048,
+    batch_size=64,
+    n_epochs=10,
+    clip_eps=0.2,
+    ent_coef=0.01,
+    vf_coef=0.5,
+)
+
+# 训练
+print("开始训练...")
+policy.train(env, total_timesteps=100000)
+
+# 保存策略
+policy.save("ppo_halfcheetah")
+print("训练完成！策略已保存到 ppo_halfcheetah")</code></pre>
+        
+        <div class="step">
+            <span class="step-number">2</span>
+            <h4>运行训练</h4>
+        </div>
+        <pre><code>python train_ppo.py
+
+# 观察输出：
+# [PPO] Episode 100/1000: reward=125.3
+# [PPO] Episode 200/1000: reward=198.7
+# ...</code></pre>
+        
+        <div class="info-box">
+            <strong>💡 提示：</strong>训练时间取决于硬件配置。GPU 可显著加速，建议使用 NVIDIA GPU。
+        </div>
+        
+        <h3>4.4 使用 LeRobot CLI 训练</h3>
+        <pre><code># 使用预定义配置训练
+lerobot-train --env pusht --algo ppo --total-steps 500000
+
+# 自定义参数
+lerobot-train \
+    --env aloha \
+    --algo act \
+    --batch-size 64 \
+    --lr 1e-4 \
+    --total-steps 1000000
+
+# 查看帮助
+lerobot-train --help</code></pre>
+        
+        <h3>4.5 收集演示数据</h3>
+        <pre><code>"""
+收集演示数据
+保存为: collect_data.py
+"""
+
+from lerobot.common.datasets import LeRobotDataset
+import numpy as np
