@@ -2,301 +2,176 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArXiv Daily - 2026-02-03 - 具身智能与强化学习</title>
+    <title>ArXiv Daily - 2026-02-03 - 强化学习与具身智能</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: #0f172a;
-            color: #e2e8f0;
-            line-height: 1.8;
-            padding: 40px 20px;
-        }
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-        .back-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            color: #38bdf8;
-            text-decoration: none;
-            margin-bottom: 30px;
-            font-size: 0.95em;
-            transition: all 0.2s;
-        }
-        .back-link:hover {
-            color: #0ea5e9;
-        }
-        header {
-            margin-bottom: 40px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #1e293b;
-        }
-        h1 {
-            font-size: 2em;
-            margin-bottom: 10px;
-            color: #38bdf8;
-        }
-        .subtitle {
-            color: #94a3b8;
-            font-size: 1.1em;
-        }
-        .meta {
-            display: flex;
-            gap: 20px;
-            margin-top: 15px;
-            flex-wrap: wrap;
-        }
-        .meta-item {
-            background: #1e293b;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 0.9em;
-        }
-        .paper-card {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            border: 1px solid #334155;
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 20px;
-        }
-        .paper-header {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-        }
-        .paper-number {
-            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            font-weight: 600;
-        }
-        .paper-category {
-            background: #334155;
-            color: #fbbf24;
-            padding: 4px 12px;
-            border-radius: 6px;
-            font-size: 0.85em;
-        }
-        .paper-date {
-            color: #64748b;
-            font-size: 0.85em;
-            display: flex;
-            align-items: center;
-        }
-        .paper-title {
-            font-size: 1.2em;
-            margin-bottom: 12px;
-            color: #e2e8f0;
-            line-height: 1.4;
-        }
-        .paper-authors {
-            color: #94a3b8;
-            font-size: 0.9em;
-            margin-bottom: 16px;
-        }
-        .paper-abstract {
-            background: rgba(0,0,0,0.2);
-            border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 12px;
-        }
-        .paper-abstract h4 {
-            color: #38bdf8;
-            font-size: 0.95em;
-            margin-bottom: 8px;
-        }
-        .abstract-text {
-            color: #cbd5e1;
-            font-size: 0.9em;
-        }
-        .paper-comment {
-            color: #94a3b8;
-            font-size: 0.9em;
-            font-style: italic;
-            margin-bottom: 12px;
-        }
-        .paper-links {
-            display: flex;
-            gap: 16px;
-        }
-        .paper-links a {
-            color: #38bdf8;
-            text-decoration: none;
-            font-size: 0.9em;
-        }
-        .paper-links a:hover {
-            text-decoration: underline;
-        }
-        .demo-notice {
-            background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%);
-            border-left: 4px solid #fbbf24;
-            padding: 20px 24px;
-            margin: 24px 0;
-            border-radius: 0 12px 12px 0;
-        }
-        footer {
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #1e293b;
-            text-align: center;
-            color: #64748b;
-            font-size: 0.9em;
-        }
-        footer a {
-            color: #38bdf8;
-            text-decoration: none;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, sans-serif; background: #0f172a; color: #e2e8f0; line-height: 1.8; padding: 40px 20px; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        h1 { color: #38bdf8; margin-bottom: 10px; }
+        .meta { color: #94a3b8; margin-bottom: 40px; }
+        .paper-card { background: #1e293b; border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+        .paper-header { display: flex; gap: 12px; margin-bottom: 12px; }
+        .paper-num { background: #38bdf8; color: #000; padding: 2px 10px; border-radius: 12px; font-size: 0.85em; }
+        .paper-cat { color: #94a3b8; font-size: 0.85em; }
+        .paper-title { font-size: 1.2em; margin-bottom: 12px; color: #f1f5f9; }
+        .paper-auth { color: #94a3b8; font-size: 0.9em; margin-bottom: 16px; }
+        .paper-abstract { background: #0f172a; padding: 16px; border-radius: 8px; margin-bottom: 16px; }
+        .paper-abstract h4 { color: #38bdf8; margin-bottom: 8px; font-size: 0.95em; }
+        .paper-abstract p { color: #cbd5e1; font-size: 0.9em; }
+        .paper-links { display: flex; gap: 16px; }
+        .paper-links a { color: #38bdf8; text-decoration: none; }
+        .paper-links a:hover { text-decoration: underline; }
+        footer { text-align: center; padding: 40px; color: #64748b; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <a href="../" class="back-link">← 返回首页</a>
-        
-        <header>
-            <h1>📚 ArXiv Daily - 2026-02-03</h1>
-            <p class="subtitle">具身智能与强化学习领域最新论文</p>
-            <div class="meta">
-                <span class="meta-item">📊 共 5 篇</span>
-                <span class="meta-item">🏷️ 主题: embodied AI OR reinforcement learning</span>
-                <span class="meta-item">🕐 更新: 12:00</span>
-            </div>
-        </header>
-        
-        <div class="demo-notice">
-            <strong>⚠️ 注意：此为示例页面</strong><br>
-            arXiv API 当前暂时不可用。运行以下命令获取最新论文：
-            <pre style="background: #0f172a; padding: 12px; border-radius: 8px; margin-top: 10px; overflow-x: auto;"><code>/root/miniconda3/bin/python /root/.openclaw/workspace/skills/arxiv-daily/scripts/arxiv_daily.py --push</code></pre>
+<div class="container">
+<header>
+    <h1>ArXiv Daily - 2026-02-03</h1>
+    <p class="meta">强化学习与具身智能 (Reinforcement Learning & Embodied AI)</p>
+</header>
+<div class="papers">
+
+    <div class="paper-card">
+        <div class="paper-header">
+            <span class="paper-num">#1</span>
+            <span class="paper-cat">2025</span>
         </div>
-        
-        <div class="papers">
-            <div class="paper-card">
-                <div class="paper-header">
-                    <span class="paper-number">#1</span>
-                    <span class="paper-category">cs.RO</span>
-                    <span class="paper-date">2026-02-03</span>
-                </div>
-                <h3 class="paper-title">Learning Robust Manipulation Policies through Domain Randomization and Sim2Real Transfer</h3>
-                <p class="paper-authors">👥 Zhang, Wang, Li, Chen, et al.</p>
-                <div class="paper-abstract">
-                    <h4>📝 摘要 (Abstract)</h4>
-                    <p class="abstract-text">We present a novel framework for learning robust manipulation policies that can generalize across different environments and object configurations. Our approach combines domain randomization during training with fine-tuning on real-world data to achieve effective Sim2Real transfer. We demonstrate the effectiveness of our method on various manipulation tasks including grasping, pushing, and assembly.</p>
-                </div>
-                <div class="paper-abstract translated">
-                    <h4>🇨🇳 中文翻译</h4>
-                    <p class="abstract-text">我们提出了一个学习鲁棒操作策略的新框架，该框架能够在不同环境和物体配置中泛化。我们的方法在训练过程中结合域随机化，并在真实世界数据上进行微调，以实现有效的 Sim2Real 迁移。我们在抓取、推动和装配等各种操作任务上验证了我们方法的有效性。</p>
-                </div>
-                <p class="paper-comment">📝 8 pages, 3 figures</p>
-                <div class="paper-links">
-                    <a href="#" target="_blank">📄 PDF</a>
-                    <a href="#" target="_blank">🔗 arXiv</a>
-                </div>
-            </div>
-            
-            <div class="paper-card">
-                <div class="paper-header">
-                    <span class="paper-number">#2</span>
-                    <span class="paper-category">cs.LG</span>
-                    <span class="paper-date">2026-02-02</span>
-                </div>
-                <h3 class="paper-title">Model-Based Reinforcement Learning with Learned Dynamics for Efficient Robot Control</h3>
-                <p class="paper-authors">👥 Liu, Zhang, Park, et al.</p>
-                <div class="paper-abstract">
-                    <h4>📝 摘要 (Abstract)</h4>
-                    <p class="abstract-text">We propose a model-based reinforcement learning approach that learns a world model of the robot's dynamics and uses it for efficient planning and control. Our method significantly reduces the sample complexity compared to model-free approaches while maintaining competitive performance on continuous control tasks.</p>
-                </div>
-                <div class="paper-abstract translated">
-                    <h4>🇨🇳 中文翻译</h4>
-                    <p class="abstract-text">我们提出了一种基于模型的强化学习方法，该方法学习机器人动力学的世界模型，并将其用于高效规划和控制。与无模型方法相比，我们的方法显著降低了样本复杂度，同时在连续控制任务上保持了具有竞争力的性能。</p>
-                </div>
-                <div class="paper-links">
-                    <a href="#" target="_blank">📄 PDF</a>
-                    <a href="#" target="_blank">🔗 arXiv</a>
-                </div>
-            </div>
-            
-            <div class="paper-card">
-                <div class="paper-header">
-                    <span class="paper-number">#3</span>
-                    <span class="paper-category">cs.CV</span>
-                    <span class="paper-date">2026-02-02</span>
-                </div>
-                <h3 class="paper-title">Visual-Language Models for Embodied Navigation and Manipulation</h3>
-                <p class="paper-authors">👥 Wang, Chen, Liu, et al.</p>
-                <div class="paper-abstract">
-                    <h4>📝 摘要 (Abstract)</h4>
-                    <p class="abstract-text">We explore the use of large vision-language models for embodied AI tasks. Our approach leverages pre-trained VLM features for scene understanding and task planning, enabling robots to follow natural language instructions for navigation and manipulation in complex environments.</p>
-                </div>
-                <div class="paper-abstract translated">
-                    <h4>🇨🇳 中文翻译</h4>
-                    <p class="abstract-text">我们探索了大型视觉语言模型在具身 AI 任务中的应用。我们的方法利用预训练的 VLM 特征进行场景理解和任务规划，使机器人能够遵循自然语言指令在复杂环境中进行导航和操作。</p>
-                </div>
-                <div class="paper-links">
-                    <a href="#" target="_blank">📄 PDF</a>
-                    <a href="#" target="_blank">🔗 arXiv</a>
-                </div>
-            </div>
-            
-            <div class="paper-card">
-                <div class="paper-header">
-                    <span class="paper-number">#4</span>
-                    <span class="paper-category">cs.RO</span>
-                    <span class="paper-date">2026-02-01</span>
-                </div>
-                <h3 class="paper-title">Dexterous Manipulation with Reinforcement Learning: A Comprehensive Survey</h3>
-                <p class="paper-authors">👥 Johnson, Smith, Lee, et al.</p>
-                <div class="paper-abstract">
-                    <h4>📝 摘要 (Abstract)</h4>
-                    <p class="abstract-text">This paper provides a comprehensive survey of reinforcement learning approaches for dexterous manipulation. We review the recent advances in algorithm design, sim-to-real transfer, and hardware deployment, highlighting the challenges and future directions in this rapidly evolving field.</p>
-                </div>
-                <div class="paper-abstract translated">
-                    <h4>🇨🇳 中文翻译</h4>
-                    <p class="abstract-text">本文对强化学习方法在灵巧操作中的应用进行了全面综述。我们回顾了算法设计、Sim-to-Real 迁移和硬件部署方面的最新进展，突出了这一快速发展领域面临的挑战和未来方向。</p>
-                </div>
-                <p class="paper-comment">📝 Survey Paper - 25 pages</p>
-                <div class="paper-links">
-                    <a href="#" target="_blank">📄 PDF</a>
-                    <a href="#" target="_blank">🔗 arXiv</a>
-                </div>
-            </div>
-            
-            <div class="paper-card">
-                <div class="paper-header">
-                    <span class="paper-number">#5</span>
-                    <span class="paper-category">cs.AI</span>
-                    <span class="paper-date">2026-02-01</span>
-                </div>
-                <h3 class="paper-title">Foundation Models for Robotics: Opportunities and Challenges</h3>
-                <p class="paper-authors">👥 Anderson, Kumar, Patel, et al.</p>
-                <div class="paper-abstract">
-                    <h4>📝 摘要 (Abstract)</h4>
-                    <p class="abstract-text">We analyze the opportunities and challenges of applying foundation models to robotics. We discuss how LLMs, VLMs, and diffusion models can be leveraged for robot perception, planning, and control, and identify key research gaps that need to be addressed for real-world deployment.</p>
-                </div>
-                <div class="paper-abstract translated">
-                    <h4>🇨🇳 中文翻译</h4>
-                    <p class="abstract-text">我们分析了将基础模型应用于机器人的机遇和挑战。我们讨论了如何利用 LLM、VLM 和扩散模型进行机器人感知、规划和控制，并确定了实现实际部署需要解决的关键研究空白。</p>
-                </div>
-                <div class="paper-links">
-                    <a href="#" target="_blank">📄 PDF</a>
-                    <a href="#" target="_blank">🔗 arXiv</a>
-                </div>
-            </div>
+        <h3 class="paper-title">Embodied AI-Enhanced Vehicular Networks: An Integrated Vision Language Models and Reinforcement Learning Method</h3>
+        <p class="paper-auth">Authors: Ruichen Zhang, Changyuan Zhao, Hongyang Du, Dusit Niyato, Jiacheng Wang</p>
+        <div class="paper-abstract">
+            <h4>摘要</h4>
+            <p>This paper investigates adaptive transmission strategies in embodied AI-enhanced vehicular networks by integrating vision language models (VLMs) for semantic information extraction and deep reinforcement learning (DRL) for decision-making. The proposed framework aims to optimize both data transmission efficiency and decision accuracy by formulating an optimization problem that incorporates the Web...</p>
         </div>
-        
-        <footer>
-            <p>🤖 自动生成 by <a href="https://github.com/openclaw/web-publisher">Web Publisher</a></p>
-            <p>📡 数据来源: <a href="https://arxiv.org/">arXiv</a></p>
-        </footer>
+        <div class="paper-links"><a href="https://www.semanticscholar.org/paper/c48d5a0c375e6a735c296027776569d59cec8507">来源</a></div>
     </div>
-</body>
-</html>
+
+    <div class="paper-card">
+        <div class="paper-header">
+            <span class="paper-num">#2</span>
+            <span class="paper-cat">2025</span>
+        </div>
+        <h3 class="paper-title">Embodied AI-Enhanced Vehicular Networks: An Integrated Large Language Models and Reinforcement Learning Method</h3>
+        <p class="paper-auth">Authors: Ruichen Zhang, Changyuan Zhao, Hongyang Du, D. Niyato, Jiacheng Wang</p>
+        <div class="paper-abstract">
+            <h4>摘要</h4>
+            <p>This paper investigates adaptive transmission strategies in embodied AI-enhanced vehicular networks by integrating large language models (LLMs) for semantic information extraction and deep reinforcement learning (DRL) for decision-making. The proposed framework aims to optimize both data transmission efficiency and decision accuracy by formulating an optimization problem that incorporates the Webe...</p>
+        </div>
+        <div class="paper-links"><a href="https://www.semanticscholar.org/paper/3e9514f59aba547298d90f4e078096bfe43e9a1d">来源</a></div>
+    </div>
+
+    <div class="paper-card">
+        <div class="paper-header">
+            <span class="paper-num">#3</span>
+            <span class="paper-cat">2024</span>
+        </div>
+        <h3 class="paper-title">ReLIC: A Recipe for 64k Steps of In-Context Reinforcement Learning for Embodied AI</h3>
+        <p class="paper-auth">Authors: Ahmad Elawady, Gunjan Chhablani, Ram Ramrakhya, Karmesh Yadav, Dhruv Batra</p>
+        <div class="paper-abstract">
+            <h4>摘要</h4>
+            <p>Intelligent embodied agents need to quickly adapt to new scenarios by integrating long histories of experience into decision-making. For instance, a robot in an unfamiliar house initially wouldn't know the locations of objects needed for tasks and might perform inefficiently. However, as it gathers more experience, it should learn the layout of its environment and remember where objects are, allow...</p>
+        </div>
+        <div class="paper-links"><a href="https://www.semanticscholar.org/paper/4677efb1c148212f2e1bbd2f4c764e46f9f77d76">来源</a></div>
+    </div>
+
+    <div class="paper-card">
+        <div class="paper-header">
+            <span class="paper-num">#4</span>
+            <span class="paper-cat">2025</span>
+        </div>
+        <h3 class="paper-title">Embodied-R: Collaborative Framework for Activating Embodied Spatial Reasoning in Foundation Models via Reinforcement Learning</h3>
+        <p class="paper-auth">Authors: Baining Zhao, Ziyou Wang, Jianjie Fang, Chen Gao, Fanhang Man</p>
+        <div class="paper-abstract">
+            <h4>摘要</h4>
+            <p>Humans can perceive and reason about spatial relationships from sequential visual observations, such as egocentric video streams. However, how pretrained models acquire such abilities, especially high-level reasoning, remains unclear. This paper introduces Embodied-R, a collaborative framework combining large-scale Vision-Language Models (VLMs) for perception and small-scale Language Models (LMs) ...</p>
+        </div>
+        <div class="paper-links"><a href="https://www.semanticscholar.org/paper/d02ca19a813520144985dab1bce8dc71d25a1f96">来源</a></div>
+    </div>
+
+    <div class="paper-card">
+        <div class="paper-header">
+            <span class="paper-num">#5</span>
+            <span class="paper-cat">2025</span>
+        </div>
+        <h3 class="paper-title">Grounding Multimodal LLMs to Embodied Agents that Ask for Help with Reinforcement Learning</h3>
+        <p class="paper-auth">Authors: Ram Ramrakhya, Matthew Chang, Xavi Puig, Ruta Desai, Z. Kira</p>
+        <div class="paper-abstract">
+            <h4>摘要</h4>
+            <p>Embodied agents operating in household environments must interpret ambiguous and under-specified human instructions. A capable household robot should recognize ambiguity and ask relevant clarification questions to infer the user intent accurately, leading to more effective task execution. To study this problem, we introduce the Ask-to-Act task, where an embodied agent is tasked with a single or mu...</p>
+        </div>
+        <div class="paper-links"><a href="https://www.semanticscholar.org/paper/7b04ad06498a615f5ddefb56d208c45714c33528">来源</a></div>
+    </div>
+
+    <div class="paper-card">
+        <div class="paper-header">
+            <span class="paper-num">#6</span>
+            <span class="paper-cat">2024</span>
+        </div>
+        <h3 class="paper-title">Teaching Embodied Reinforcement Learning Agents: Informativeness and Diversity of Language Use</h3>
+        <p class="paper-auth">Authors: Jiajun Xi, Yinong He, Jianing Yang, Yinpei Dai, Joyce Chai</p>
+        <div class="paper-abstract">
+            <h4>摘要</h4>
+            <p>In real-world scenarios, it is desirable for embodied agents to have the ability to leverage human language to gain explicit or implicit knowledge for learning tasks. Despite recent progress, most previous approaches adopt simple low-level instructions as language inputs, which may not reflect natural human communication. We expect human language to be informative (i.e., providing feedback on agen...</p>
+        </div>
+        <div class="paper-links"><a href="https://www.semanticscholar.org/paper/d229676d9ef80fb265cac03ebd2f001b78d950cc">来源</a></div>
+    </div>
+
+    <div class="paper-card">
+        <div class="paper-header">
+            <span class="paper-num">#7</span>
+            <span class="paper-cat">2025</span>
+        </div>
+        <h3 class="paper-title">ERA: Transforming VLMs into Embodied Agents via Embodied Prior Learning and Online Reinforcement Learning</h3>
+        <p class="paper-auth">Authors: Hanyang Chen, Mark Zhao, Rui Yang, Qinwei Ma, Ke Yang</p>
+        <div class="paper-abstract">
+            <h4>摘要</h4>
+            <p>Recent advances in embodied AI highlight the potential of vision language models (VLMs) as agents capable of perception, reasoning, and interaction in complex environments. However, top-performing systems rely on large-scale models that are costly to deploy, while smaller VLMs lack the necessary knowledge and skills to succeed. To bridge this gap, we present \textit{Embodied Reasoning Agent (ERA)}...</p>
+        </div>
+        <div class="paper-links"><a href="https://www.semanticscholar.org/paper/741479d2510b204dfc8900d7ad9363b1bea02cf2">来源</a></div>
+    </div>
+
+    <div class="paper-card">
+        <div class="paper-header">
+            <span class="paper-num">#8</span>
+            <span class="paper-cat">2025</span>
+        </div>
+        <h3 class="paper-title">RobotxR1: Enabling Embodied Robotic Intelligence on Large Language Models through Closed-Loop Reinforcement Learning</h3>
+        <p class="paper-auth">Authors: Liam Boyle, Nicolas Baumann, Paviththiren Sivasothilingam, Michele Magno, Luca Benini</p>
+        <div class="paper-abstract">
+            <h4>摘要</h4>
+            <p>Future robotic systems operating in real-world environments will require on-board embodied intelligence without continuous cloud connection, balancing capabilities with constraints on computational power and memory. This work presents an extension of the R1-zero approach, which enables the usage of low parameter-count Large Language Models (LLMs) in the robotic domain. The R1-Zero approach was ori...</p>
+        </div>
+        <div class="paper-links"><a href="https://www.semanticscholar.org/paper/58d06bb21c22192f03fa28c3261122e23e426461">来源</a></div>
+    </div>
+
+    <div class="paper-card">
+        <div class="paper-header">
+            <span class="paper-num">#9</span>
+            <span class="paper-cat">2025</span>
+        </div>
+        <h3 class="paper-title">VIKI-R: Coordinating Embodied Multi-Agent Cooperation via Reinforcement Learning</h3>
+        <p class="paper-auth">Authors: Li Kang, Xiufeng Song, Heng Zhou, Yiran Qin, Jie Yang</p>
+        <div class="paper-abstract">
+            <h4>摘要</h4>
+            <p>Coordinating multiple embodied agents in dynamic environments remains a core challenge in artificial intelligence, requiring both perception-driven reasoning and scalable cooperation strategies. While recent works have leveraged large language models (LLMs) for multi-agent planning, a few have begun to explore vision-language models (VLMs) for visual reasoning. However, these VLM-based approaches ...</p>
+        </div>
+        <div class="paper-links"><a href="https://www.semanticscholar.org/paper/ed3522c9aa04927e43f89c588586e4f1075135a4">来源</a></div>
+    </div>
+
+    <div class="paper-card">
+        <div class="paper-header">
+            <span class="paper-num">#10</span>
+            <span class="paper-cat">2025</span>
+        </div>
+        <h3 class="paper-title">Multi-agent Embodied AI: Advances and Future Directions</h3>
+        <p class="paper-auth">Authors: Zhaohan Feng, Ruiqi Xue, Lei Yuan, Yang Yu, Ning Ding</p>
+        <div class="paper-abstract">
+            <h4>摘要</h4>
+            <p>Embodied artificial intelligence (Embodied AI) plays a pivotal role in the application of advanced technologies in the intelligent era, where AI systems are integrated with physical bodies that enable them to perceive, reason, and interact with their environments. Through the use of sensors for input and actuators for action, these systems can learn and adapt based on real-world feedback, allowing...</p>
+        </div>
+        <div class="paper-links"><a href="https://www.semanticscholar.org/paper/d653af97a808ce0b6594a543d5dc80cabdf6d562">来源</a></div>
+    </div>
+
+</div>
+<footer><p>Generated by ArXiv Daily</p></footer>
+</div></body></html>
