@@ -1,20 +1,28 @@
 #!/usr/bin/env python3
 """
-Gmail Reader - Read, search, and manage Gmail emails
+Gmail Reader - Read, search, and send Gmail emails
 
 Usage:
+    # 读取邮件
     python gmail.py --count                    # Show unread count
     python gmail.py --list --limit 10          # List recent emails
     python gmail.py --search --from "github"   # Search by sender
     python gmail.py --github                   # GitHub notifications only
     python gmail.py --summary                  # Summarize important emails
+    
+    # 发送邮件
+    python gmail.py --send --to "user@example.com" --subject "Hello" --body "Message"
 """
 
 import os
 import sys
+import smtplib
+import base64
 import argparse
 import urllib.request
 import xml.etree.ElementTree as ET
+from email.mime.text import MIMEText
+from email.utils import formataddr
 from datetime import datetime
 from email.utils import parsedate_to_datetime
 import json
@@ -22,37 +30,47 @@ import json
 # Configuration
 DEFAULT_LIMIT = 10
 
-# Important email keywords (Chinese + English)
+# Important email keywords
 IMPORTANT_KEYWORDS = [
-    # Security / 安全
     '安全', 'security', 'password', '密码', 'ssh', 'token', 'key',
-    'credential', '登录', '登录', '未授权', 'unauthorized',
-    
-    # Payment / 支付
+    'credential', '登录', 'unauthorized',
     '支付', 'payment', 'invoice', '账单', '欠费', 'overdue',
     '续费', 'renew', 'expire', '过期',
-    
-    # Alerts / 警报
     '警告', 'alert', 'warning', '错误', 'error', 'critical',
     '紧急', 'urgent', 'important',
-    
-    # Domains / 域名
-    '域名', 'domain', '到期', 'expiring',
+    '域名', 'domain', '到期',
 ]
 
-# Priority senders
-PRIORITY_SENDERS = {
-    'github.com': '🔴',
-    'accounts.google.com': '🔴',
-    'alipay.com': '🔴',
-    'aliyun.com': '🔴',
-    'digitalocean.com': '🟡',
-    'aws.amazon.com': '🔴',
-}
+
+class GmailSender:
+    """Gmail sender with SMTP"""
+    
+    def __init__(self, user, password):
+        self.user = user
+        self.password = password
+        self.smtp_server = "smtp.gmail.com"
+        self.port = 587
+    
+    def send(self, to_email, subject, body):
+        """Send email"""
+        msg = MIMEText(body, 'plain', 'utf-8')
+        msg['From'] = formataddr(("Brad", self.user))
+        msg['To'] = to_email
+        msg['Subject'] = subject
+        
+        try:
+            server = smtplib.SMTP(self.smtp_server, self.port)
+            server.starttls()
+            server.login(self.user, self.password)
+            server.sendmail(self.user, [to_email], msg.as_string())
+            server.quit()
+            return True, "邮件发送成功！"
+        except Exception as e:
+            return False, f"发送失败: {e}"
 
 
 class GmailReader:
-    """Gmail reader with search and summarize capabilities"""
+    """Gmail reader with IMAP"""
     
     def __init__(self, user=None, password=None):
         self.user = user or os.environ.get('GMAIL_USER')
@@ -61,9 +79,7 @@ class GmailReader:
         
         if not self.user or not self.password:
             raise ValueError(
-                "GMAIL_USER and GMAIL_APP_PASSWORD must be set!\n"
-                "Run: export GMAIL_USER='your@gmail.com'\n"
-                "     export GMAIL_APP_PASSWORD='xxxx xxxx xxxx xxxx'"
+                "GMAIL_USER and GMAIL_APP_PASSWORD must be set!"
             )
     
     def _fetch_feed(self):
@@ -72,7 +88,8 @@ class GmailReader:
         url = "https://mail.google.com/mail/feed/atom"
         
         req = urllib.request.Request(url)
-        req.add_header('Authorization', f'Basic {auth.encode("base64").decode()}')
+        auth_header = f'Basic {base64.b64encode(auth.encode()).decode()}'
+        req.add_header('Authorization', auth_header)
         
         try:
             with urllib.request.urlopen(req, timeout=10) as response:
@@ -98,75 +115,37 @@ class GmailReader:
                 'link': '',
             }
             
-            # Title
             title_elem = entry.find('.//{http://purl.org/atom/ns#}title')
             if title_elem is not None and title_elem.text:
                 email['title'] = title_elem.text.strip()
             
-            # Author
             author_elem = entry.find('.//{http://purl.org/atom/ns#}author/{http://purl.org/atom/ns#}email')
             if author_elem is not None and author_elem.text:
                 email['sender'] = author_elem.text.strip()
             
-            # Summary
             summary_elem = entry.find('.//{http://purl.org/atom/ns#}summary')
             if summary_elem is not None and summary_elem.text:
-                # Clean up summary
-                summary = summary_elem.text.strip()
-                # Remove extra whitespace and special chars
-                summary = ' '.join(summary.split())
-                # Truncate if too long
+                summary = ' '.join(summary_elem.text.strip().split())
                 if len(summary) > 300:
                     summary = summary[:300] + '...'
                 email['summary'] = summary
-            
-            # Link
-            link_elem = entry.find('.//{http://www.w3.org/2005/Atom}link[@rel="alternate"]')
-            if link_elem is not None:
-                email['link'] = link_elem.get('href', '')
-            
-            # Date (updated)
-            updated_elem = entry.find('.//{http://purl.org/atom/ns#}updated')
-            if updated_elem is not None and updated_elem.text:
-                try:
-                    dt = parsedate_to_datetime(updated_elem.text)
-                    email['date'] = dt.strftime('%Y-%m-%d %H:%M')
-                except:
-                    email['date'] = updated_elem.text[:10]
             
             emails.append(email)
         
         return emails
     
     def _is_important(self, email):
-        """Check if email is important based on keywords"""
+        """Check if email is important"""
         text = f"{email['title']} {email['summary']}".lower()
-        
         for keyword in IMPORTANT_KEYWORDS:
             if keyword.lower() in text:
                 return True
         return False
     
-    def _get_priority(self, email):
-        """Get priority indicator"""
-        sender = email['sender'].lower()
-        
-        # Check priority senders
-        for domain, indicator in PRIORITY_SENDERS.items():
-            if domain in sender:
-                return indicator
-        
-        # Check important keywords
-        if self._is_important(email):
-            return '🔴'
-        
-        return '  '
-    
     def get_unread_count(self):
         """Get unread email count"""
         feed = self._fetch_feed()
         root = ET.fromstring(feed)
-        
         count_elem = root.find('.//{http://purl.org/atom/ns#}fullcount')
         if count_elem is not None and count_elem.text:
             return int(count_elem.text)
@@ -178,7 +157,7 @@ class GmailReader:
         emails = self._parse_feed(feed)
         return emails[:limit]
     
-    def search(self, query=None, sender=None, since=None):
+    def search(self, query=None, sender=None):
         """Search emails"""
         emails = self.list_emails(limit=self.max_emails)
         
@@ -189,9 +168,6 @@ class GmailReader:
         if sender:
             sender = sender.lower()
             emails = [e for e in emails if sender in e['sender'].lower()]
-        
-        if since:
-            emails = [e for e in emails if e['date'] >= since]
         
         return emails
     
@@ -225,17 +201,12 @@ def format_email_list(emails, show_summary=True):
     
     lines = []
     for i, email in enumerate(emails, 1):
-        priority = ''
         title = email['title'][:50] if len(email['title']) > 50 else email['title']
-        
         lines.append(f"{i}. [{email['sender'][:30]}]")
         lines.append(f"   {title}")
-        lines.append(f"   📅 {email['date']}")
-        
         if show_summary and email['summary']:
             summary = email['summary'][:100]
             lines.append(f"   📝 {summary}")
-        
         lines.append('')
     
     return '\n'.join(lines)
@@ -243,32 +214,68 @@ def format_email_list(emails, show_summary=True):
 
 def main():
     parser = argparse.ArgumentParser(
-        description='📧 Gmail Reader - Read and search Gmail emails',
+        description='📧 Gmail Reader & Sender',
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     
+    # 读取相关
     parser.add_argument('--count', action='store_true', help='Show unread count')
     parser.add_argument('--list', action='store_true', help='List recent emails')
     parser.add_argument('--limit', type=int, default=DEFAULT_LIMIT, help='Number of emails')
     parser.add_argument('--search', action='store_true', help='Search emails')
     parser.add_argument('--from', dest='sender', help='Filter by sender')
     parser.add_argument('--query', help='Search keyword')
-    parser.add_argument('--since', help='Emails after date (YYYY-MM-DD)')
     parser.add_argument('--github', action='store_true', help='GitHub notifications only')
     parser.add_argument('--summary', action='store_true', help='Summarize important emails')
+    
+    # 发送相关
+    parser.add_argument('--send', action='store_true', help='Send email')
+    parser.add_argument('--to', help='Recipient email')
+    parser.add_argument('--subject', help='Email subject')
+    parser.add_argument('--body', help='Email body')
+    parser.add_argument('--body-file', help='Read body from file')
+    
     parser.add_argument('--output', choices=['text', 'json'], default='text', help='Output format')
     
     args = parser.parse_args()
     
     try:
+        # 发送邮件模式
+        if args.send:
+            if not args.to:
+                print("❌ 需要指定收件人: --to user@example.com")
+                sys.exit(1)
+            
+            subject = args.subject or ""
+            body = ""
+            
+            if args.body:
+                body = args.body
+            elif args.body_file and os.path.exists(args.body_file):
+                with open(args.body_file, 'r') as f:
+                    body = f.read()
+            elif not args.body:
+                body = "(空邮件)"
+            
+            sender = GmailSender(
+                os.environ.get('GMAIL_USER'),
+                os.environ.get('GMAIL_APP_PASSWORD')
+            )
+            success, msg = sender.send(args.to, subject, body)
+            
+            if args.output == 'json':
+                print(json.dumps({'success': success, 'message': msg}))
+            else:
+                print(f"{'✅' if success else '❌'} {msg}")
+            sys.exit(0)
+        
+        # 读取邮件模式
         gmail = GmailReader()
         
-        # Default: show count and recent emails
         if not any([args.count, args.list, args.search, args.github, args.summary]):
             args.count = True
             args.list = True
         
-        # Output unread count
         if args.count:
             count = gmail.get_unread_count()
             if args.output == 'json':
@@ -278,7 +285,6 @@ def main():
                 print(f"   Unread: {count}")
                 print()
         
-        # List emails
         if args.list:
             emails = gmail.list_emails(limit=args.limit)
             if args.output == 'json':
@@ -288,9 +294,8 @@ def main():
                 print("=" * 60)
                 print(format_email_list(emails))
         
-        # Search emails
-        if args.search or args.sender or args.query:
-            emails = gmail.search(query=args.query, sender=args.sender, since=args.since)
+        if args.search or args.sender:
+            emails = gmail.search(query=args.query, sender=args.sender)
             if args.output == 'json':
                 print(json.dumps({'results': emails}, ensure_ascii=False, indent=2))
             else:
@@ -298,7 +303,6 @@ def main():
                 print("=" * 60)
                 print(format_email_list(emails))
         
-        # GitHub emails
         if args.github:
             emails = gmail.get_github_emails()
             if args.output == 'json':
@@ -308,7 +312,6 @@ def main():
                 print("=" * 60)
                 print(format_email_list(emails))
         
-        # Summary
         if args.summary:
             summary = gmail.summarize(limit=args.limit)
             if args.output == 'json':
@@ -320,7 +323,6 @@ def main():
                 print(f"🔴 Important: {len(summary['important'])}")
                 print(f"🟢 Normal: {len(summary['normal'])}")
                 print()
-                
                 if summary['important']:
                     print("🔴 Important Emails:")
                     print("-" * 40)
