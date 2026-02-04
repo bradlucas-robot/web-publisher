@@ -1,0 +1,17 @@
+# Page Settings
+title: "MuJoCo + LeRobot 强化学习训练指南"
+description: "完整的 MuJoCo 物理引擎 + LeRobot 框架安装、配置、训练教程"
+video_path: ""
+
+# Output Settings  
+output_dir: "/root/.openclaw/workspace/docs"
+git_init: false
+push: false
+create_repo: false
+enable_pages: false
+
+# Customization
+page_config:
+  theme: "dark"
+  accent_color: "#646cff"
+  background_color: "#1a1a2e"

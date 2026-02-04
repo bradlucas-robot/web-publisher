@@ -1,0 +1,24 @@
+# Web Publisher Configuration - MuJoCo + LeRobot Guide
+# ====================================================
+
+# Page Settings
+title: "MuJoCo + LeRobot 强化学习训练指南"
+description: "完整的 MuJoCo 物理引擎 + LeRobot 框架安装、配置、训练教程"
+video_path: ""
+
+# Output Settings
+output_dir: "/root/.openclaw/workspace/docs"
+git_init: true        # Initialize new repo
+push: true            # Push to GitHub
+create_repo: false    # Manual repo creation
+enable_pages: false   # Enable via GitHub UI
+
+# GitHub Settings
+github:
+  owner: "bradlucas-robot"
+  repo: "mujoco-lerobot-guide"
+  branch: "main"
+  token: ""  # Will use SSH or existing remote
+
+# Commit Message
+commit_message: "feat: 添加 MuJoCo + LeRobot 强化学习训练指南"
