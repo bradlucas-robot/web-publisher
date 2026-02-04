@@ -21,8 +21,11 @@ import base64
 import argparse
 import urllib.request
 import xml.etree.ElementTree as ET
+import imaplib
+import email
 from email.mime.text import MIMEText
 from email.utils import formataddr
+from email.header import decode_header
 from datetime import datetime
 from email.utils import parsedate_to_datetime
 import json
@@ -67,6 +70,108 @@ class GmailSender:
             return True, "邮件发送成功！"
         except Exception as e:
             return False, f"发送失败: {e}"
+
+
+class GmailIMAPSearcher:
+    """Gmail IMAP searcher - 支持搜索所有邮件（包括已读）"""
+    
+    def __init__(self, user, password):
+        self.user = user
+        self.password = password
+        self.server = "imap.gmail.com"
+        self.port = 993
+    
+    def _decode_header(self, header):
+        """安全解码邮件头"""
+        if not header:
+            return ""
+        try:
+            decoded = decode_header(header)[0][0]
+            if isinstance(decoded, bytes):
+                return decoded.decode('utf-8', errors='replace')
+            return decoded
+        except:
+            return header
+    
+    def search(self, query=None, sender=None, limit=50):
+        """搜索邮件
+        
+        Args:
+            query: 关键词搜索
+            sender: 发件人搜索
+            limit: 返回数量限制
+        
+        Returns:
+            list: 邮件列表
+        """
+        try:
+            # 连接 IMAP
+            mail = imaplib.IMAP4_SSL(self.server, self.port, timeout=30)
+            mail.login(self.user, self.password)
+            mail.select("INBOX", readonly=True)
+            
+            # 构建搜索条件
+            search_criteria = []
+            if sender:
+                search_criteria.append(f'FROM "{sender}"')
+            if query:
+                search_criteria.append(f'ALL "{query}"')
+            
+            if not search_criteria:
+                search_criteria = ["ALL"]
+            
+            # 执行搜索
+            status, data = mail.search(None, *search_criteria)
+            
+            emails = []
+            if data[0]:
+                email_ids = data[0].split()
+                # 只取最近的
+                email_ids = email_ids[-limit:]
+                
+                for eid in email_ids:
+                    res, msg = mail.fetch(eid, "(RFC822)")
+                    for response in msg:
+                        if isinstance(response, tuple):
+                            msg_obj = email.message_from_bytes(response[1])
+                            
+                            email_data = {
+                                'subject': self._decode_header(msg_obj["Subject"]),
+                                'sender': self._decode_header(msg_obj["From"]),
+                                'date': msg_obj["Date"] or "",
+                                'to': self._decode_header(msg_obj["To"]),
+                            }
+                            
+                            # 获取邮件正文（纯文本）
+                            body = ""
+                            if msg_obj.is_multipart():
+                                for part in msg_obj.walk():
+                                    if part.get_content_type() == "text/plain":
+                                        try:
+                                            body = part.get_payload(decode=True).decode('utf-8', errors='replace')
+                                        except:
+                                            body = part.get_payload(decode=True).decode('gbk', errors='replace')
+                                        break
+                            else:
+                                try:
+                                    body = msg_obj.get_payload(decode=True).decode('utf-8', errors='replace')
+                                except:
+                                    body = msg_obj.get_payload(decode=True).decode('gbk', errors='replace')
+                            
+                            # 清理正文
+                            email_data['body'] = '\n'.join([l for l in body.split('\n') if l.strip()])[:500]
+                            
+                            emails.append(email_data)
+            
+            mail.logout()
+            return emails, None
+            
+        except Exception as e:
+            return [], str(e)
+    
+    def search_from_wanda(self, limit=50):
+        """专门搜索来自 wanda 的邮件"""
+        return self.search(sender="wanda", limit=limit)
 
 
 class GmailReader:
@@ -228,6 +333,11 @@ def main():
     parser.add_argument('--github', action='store_true', help='GitHub notifications only')
     parser.add_argument('--summary', action='store_true', help='Summarize important emails')
     
+    # IMAP 完整搜索（支持已读邮件）
+    parser.add_argument('--imap-search', action='store_true', help='Search all emails via IMAP (includes read)')
+    parser.add_argument('--wanda', action='store_true', help='Search emails from wanda (all emails)')
+    parser.add_argument('--show-body', action='store_true', help='Show email body in results')
+    
     # 发送相关
     parser.add_argument('--send', action='store_true', help='Send email')
     parser.add_argument('--to', help='Recipient email')
@@ -327,6 +437,59 @@ def main():
                     print("🔴 Important Emails:")
                     print("-" * 40)
                     print(format_email_list(summary['important'], show_summary=True))
+        
+        # IMAP 完整搜索
+        if args.wanda:
+            print("🔍 搜索来自 wanda 的邮件（包含已读）...")
+            imap_searcher = GmailIMAPSearcher(
+                os.environ.get('GMAIL_USER'),
+                os.environ.get('GMAIL_APP_PASSWORD')
+            )
+            emails, error = imap_searcher.search_from_wanda(limit=args.limit)
+            
+            if error:
+                print(f"❌ 错误: {error}")
+            elif args.output == 'json':
+                print(json.dumps({'wanda_emails': emails}, ensure_ascii=False, indent=2))
+            else:
+                print(f"\n找到 {len(emails)} 封来自 wanda 的邮件:\n")
+                print("=" * 60)
+                for i, mail in enumerate(emails, 1):
+                    print(f"{i}. 主题: {mail['subject']}")
+                    print(f"   发件人: {mail['sender']}")
+                    print(f"   日期: {mail['date']}")
+                    if args.show_body and mail['body']:
+                        body_preview = mail['body'][:200]
+                        print(f"   内容: {body_preview}...")
+                    print()
+        
+        if args.imap_search:
+            print("🔍 搜索邮件（包含已读）...")
+            imap_searcher = GmailIMAPSearcher(
+                os.environ.get('GMAIL_USER'),
+                os.environ.get('GMAIL_APP_PASSWORD')
+            )
+            emails, error = imap_searcher.search(
+                query=args.query, 
+                sender=args.sender,
+                limit=args.limit
+            )
+            
+            if error:
+                print(f"❌ 错误: {error}")
+            elif args.output == 'json':
+                print(json.dumps({'results': emails}, ensure_ascii=False, indent=2))
+            else:
+                print(f"\n找到 {len(emails)} 封邮件:\n")
+                print("=" * 60)
+                for i, mail in enumerate(emails, 1):
+                    print(f"{i}. 主题: {mail['subject']}")
+                    print(f"   发件人: {mail['sender']}")
+                    print(f"   日期: {mail['date']}")
+                    if args.show_body and mail['body']:
+                        body_preview = mail['body'][:200]
+                        print(f"   内容: {body_preview}...")
+                    print()
     
     except ValueError as e:
         print(f"❌ Error: {e}")
