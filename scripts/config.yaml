@@ -1,0 +1,25 @@
+# Web Publisher Configuration
+# ============================
+# Token 来源: 从 git remote URL 自动读取
+# 配置路径: ~/.git-credentials 或环境变量 GITHUB_TOKEN
+
+# Page Settings
+title: "Web Publisher Demo"
+description: "OpenClaw 自动生成的网页"
+video_path: ""
+
+# Output Settings
+output_dir: "/root/.openclaw/workspace/skills/web-publisher/docs"
+git_init: false
+push: true
+create_repo: false
+enable_pages: false
+
+# GitHub Settings (token 自动检测)
+github:
+  owner: "bradlucas-robot"
+  repo: "web-publisher"
+  branch: "main"
+  # Token 来源: git remote URL
+
+commit_message: "docs: 更新内容"
